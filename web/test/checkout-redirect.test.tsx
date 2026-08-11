@@ -131,7 +131,7 @@ describe("checkout redirect", () => {
 
     startCheckoutRedirect(WEB_GATEWAY);
 
-    expect(openLink).toHaveBeenCalledWith(WEB_GATEWAY);
+    expect(openLink).toHaveBeenCalledWith(WEB_GATEWAY, { try_browser: true });
   });
 
   it("treats a Telegram launch as Telegram even when the SDK never loaded", () => {
@@ -203,7 +203,7 @@ describe("checkout redirect: which Telegram bridge opens the link", () => {
     expect(openLink).not.toHaveBeenCalled();
   });
 
-  it("keeps sending an ordinary gateway page to the in-app browser", () => {
+  it("asks Telegram to open an ordinary gateway page in the system browser", () => {
     // The other two bridges reject a non-`t.me` host outright, so widening the
     // native path to every checkout URL would break the web gateways.
     const { openLink, openTelegramLink, openInvoice } = withTelegram(true);
@@ -211,7 +211,7 @@ describe("checkout redirect: which Telegram bridge opens the link", () => {
 
     startCheckoutRedirect(WEB_GATEWAY);
 
-    expect(openLink).toHaveBeenCalledWith(WEB_GATEWAY);
+    expect(openLink).toHaveBeenCalledWith(WEB_GATEWAY, { try_browser: true });
     expect(openTelegramLink).not.toHaveBeenCalled();
     expect(openInvoice).not.toHaveBeenCalled();
   });
@@ -234,7 +234,7 @@ describe("checkout redirect: which Telegram bridge opens the link", () => {
 
     startCheckoutRedirect(STARS_INVOICE);
 
-    expect(openLink).toHaveBeenCalledWith(STARS_INVOICE);
+    expect(openLink).toHaveBeenCalledWith(STARS_INVOICE, { try_browser: true });
   });
 
   it("falls through when a bridge throws rather than swallowing the payment", () => {
@@ -343,6 +343,14 @@ describe("openExternalUrl shares the one bridge rule", () => {
 
     expect(openTelegramLink).toHaveBeenCalledWith("tg://resolve?domain=Bot");
     expect(openLink).not.toHaveBeenCalled();
+  });
+
+  it("asks Telegram Desktop to use the system browser for ordinary web links", () => {
+    const { openLink } = withTelegram(true);
+
+    openExternalUrl(WEB_GATEWAY);
+
+    expect(openLink).toHaveBeenCalledWith(WEB_GATEWAY, { try_browser: true });
   });
 
   it("opens a new tab outside Telegram, where the click gesture is live", () => {
