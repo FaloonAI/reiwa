@@ -87,7 +87,7 @@ export interface TelegramWebApp {
     showProgress: (leaveActive?: boolean) => void
     hideProgress: () => void
   }
-  openLink: (url: string, options?: { try_instant_view?: boolean; try_browser?: boolean }) => void
+  openLink: (url: string, options?: { try_instant_view?: boolean }) => void
   /** Bot API 6.0+ — optional because `lib/utils.ts` falls back down the bridge
    *  chain rather than assume any one of them shipped. */
   openTelegramLink?: (url: string) => void

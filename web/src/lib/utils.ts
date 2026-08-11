@@ -127,18 +127,6 @@ function callBridge(
   }
 }
 
-function callOpenLink(tg: TelegramWebApp, url: string): boolean {
-  try {
-    // Telegram Desktop can keep ordinary gateway pages inside the Mini App
-    // webview, where payment redirects may stall. Bot API 7.6+ accepts
-    // `try_browser` to ask the client to hand the URL to the system browser.
-    tg.openLink(url, { try_browser: true });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Hands `url` to the most specific Telegram bridge that will take it, falling
  * back down the chain. The fallbacks are not defensive padding: `openInvoice`
@@ -149,7 +137,7 @@ function openViaTelegram(tg: TelegramWebApp, url: string): boolean {
   const kind = classifyTelegramLink(url);
   if (kind === "invoice" && callBridge(tg.openInvoice, tg, url)) return true;
   if (kind !== "external" && callBridge(tg.openTelegramLink, tg, url)) return true;
-  return callOpenLink(tg, url);
+  return callBridge(tg.openLink, tg, url);
 }
 
 /**
