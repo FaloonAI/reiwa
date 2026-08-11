@@ -29,7 +29,7 @@ import { abandonCheckout, getPaymentStatus } from "@/lib/api-client";
 import { resolvePaymentResult } from "./payment-result-policy";
 import { Button } from "@/components/ui/button";
 import { useBranding } from "@/lib/branding-provider";
-import { openExternalUrl, shouldReloadForTelegramCheckoutBridge } from "@/lib/utils";
+import { openExternalUrl } from "@/lib/utils";
 import { subscriptionQueryKeys } from "@/lib/subscription-query-keys";
 import { readPendingCheckout, readPendingCheckoutReturnTo, readPendingCheckoutLabel, clearPendingCheckout } from "@/lib/pending-checkout";
 import {
@@ -96,12 +96,6 @@ export default function PaymentReturnPage() {
   const openPayment = () => {
     if (checkoutUrl) openExternalUrl(checkoutUrl);
   };
-
-  useEffect(() => {
-    if (!checkoutUrl) return;
-    if (!shouldReloadForTelegramCheckoutBridge(paymentId)) return;
-    window.location.reload();
-  }, [checkoutUrl, paymentId]);
 
   // Giving up on an unpaid checkout. Worth a button of its own because a
   // paid-trial draft holds the buyer's trial reservation and the quota counts a
