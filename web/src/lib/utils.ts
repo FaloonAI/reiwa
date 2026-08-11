@@ -177,6 +177,21 @@ export function openExternalUrl(url: string): void {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+export function shouldReloadForTelegramCheckoutBridge(paymentId: string): boolean {
+  if (!paymentId) return false;
+  if (window.Telegram?.WebApp !== undefined) return false;
+  if (window.__reiwaTelegramSdkState === undefined) return false;
+
+  const key = `reiwa:checkout-bridge-reload:${paymentId}`;
+  try {
+    if (window.sessionStorage.getItem(key) === "1") return false;
+    window.sessionStorage.setItem(key, "1");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Was this page opened as a Telegram Mini App?
  *

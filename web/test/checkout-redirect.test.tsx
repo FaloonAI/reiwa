@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { openExternalUrl, startCheckoutRedirect } from "../src/lib/utils";
+import { openExternalUrl, shouldReloadForTelegramCheckoutBridge, startCheckoutRedirect } from "../src/lib/utils";
 
 /**
  * The lost-payments bug: the checkout link was built correctly, the buyer
@@ -89,6 +89,7 @@ function stubAssign(): ReturnType<typeof vi.fn> {
 afterEach(() => {
   withTelegram(false);
   withSdkState(undefined);
+  window.sessionStorage.clear();
   vi.restoreAllMocks();
 });
 
@@ -360,5 +361,29 @@ describe("openExternalUrl shares the one bridge rule", () => {
     openExternalUrl(STARS_INVOICE);
 
     expect(open).toHaveBeenCalledWith(STARS_INVOICE, "_blank", "noopener,noreferrer");
+  });
+});
+
+describe("checkout redirect: Telegram bridge reload guard", () => {
+  it("asks for one reload when a Telegram checkout reaches the return page before the SDK bridge", () => {
+    withTelegram(false);
+    withSdkState("loading");
+
+    expect(shouldReloadForTelegramCheckoutBridge("pay-1")).toBe(true);
+    expect(shouldReloadForTelegramCheckoutBridge("pay-1")).toBe(false);
+  });
+
+  it("does not reload once the Telegram bridge is already available", () => {
+    withTelegram(true);
+    withSdkState("ready");
+
+    expect(shouldReloadForTelegramCheckoutBridge("pay-1")).toBe(false);
+  });
+
+  it("does not reload ordinary browser sessions", () => {
+    withTelegram(false);
+    withSdkState(undefined);
+
+    expect(shouldReloadForTelegramCheckoutBridge("pay-1")).toBe(false);
   });
 });
